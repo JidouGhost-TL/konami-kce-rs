@@ -3,7 +3,7 @@
 **Zero-dependency, pure Rust parser, software synthesizer, and byte-exact golden-tested emulator for the Konami KCE (KCEH & KCEJ) GBA Sound Engines (Game Boy Advance).**
 
 [![Crates.io](https://img.shields.io/crates/v/konami-kce.svg)](https://crates.io/crates/konami-kce)
-[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
+[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](#license)
 [![no_std](https://img.shields.io/badge/no__std-compatible-success.svg)](#features)
 
 The **Konami KCE** custom DirectSound engines powered **216 commercial Game Boy Advance releases** across two major studio architectures:
@@ -31,7 +31,7 @@ The **Konami KCE** custom DirectSound engines powered **216 commercial Game Boy 
 
 ## Supported Konami KCE Engine Revisions
 
-Auditing all 3,377 GBA ROMs identifies **6 distinct ARM7TDMI mixer revisions** spanning **216 commercial titles**, all supported and byte-exact golden-tested via [`KonamiKceVersion`]:
+Auditing all 3,377 GBA ROMs identifies **6 distinct ARM7TDMI mixer revisions** spanning **216 commercial titles**, all supported and byte-exact golden-tested via `KonamiKceVersion`:
 
 | Revision | Corpus Share | Representative Titles | Scaling & Interpolation | Output Clamp | Channels |
 | --- | ---: | --- | --- | --- | ---: |
@@ -73,6 +73,22 @@ Every mixing path in `AccuracySynth` is verified strictly byte-for-byte (`assert
 
 - **7 KCEH ARM vectors (1,536 bytes)**: Stereo Linear Forward, Stereo Linear Looped + Phase-Invert Surround, Stereo Linear Reverse, Stereo Nearest Forward, Mono Linear Forward, Mono Nearest Forward, and 4-Voice Saturated Clamping (`+127` / `-128`).
 - **9 KCEJ ARM vectors (384 bytes)**: KCEJ v1 general resampled, `0x0800` 2x fast path, and 2-voice wrapping sum; KCEJ v2 forward & reverse 256-byte LUT; KCEJ v3 stereo & center-pan `asrs #4; addmi #1`; KCEJ v4 stereo `asr #7`; and KCEJ v5 stereo `muls; addmi #0x80; asr #7`.
+
+---
+
+## Benchmarks
+
+```sh
+cargo bench --bench bench_audio
+```
+
+| Benchmark | Throughput |
+| --- | ---: |
+| `AccuracySynth::kceh_stereo_linear + clamp` (128f) | ~804 MSamples/s |
+| `AccuracySynth::kceh_stereo_nearest + clamp` (128f) | ~1.32 GSamples/s |
+| `AccuracySynth::kcej_v1_mono8` (128f) | ~1.86 GSamples/s |
+| `AccuracySynth::kcej_v4_stereo_asr7 + pack` (128f) | ~1.26 GSamples/s |
+| `StudioSynth::render_voice_f32` (48 kHz Lanczos-3, 1,024f) | ~373 MSamples/s |
 
 ---
 

@@ -21,6 +21,23 @@
 //!     equal-power stereo panning.
 //! - **Byte-exact `libmgba` ARM golden tested**: 1,920 / 1,920 output bytes verified strictly
 //!   byte-for-byte (`assert_eq!`) against real ARM7TDMI execution across all 6 engine revisions.
+//!
+//! ## Quickstart
+//!
+//! ```rust
+//! use konami_kce::{AccuracySynth, KcehMixMode, KcehVoice};
+//!
+//! let pcm: &[u8] = &[0, 32, 64, 96, 127, 96, 64, 32, 0, 224, 192, 160, 128, 160, 192, 224];
+//! let mut voice = KcehVoice::new_forward(0, pcm.len(), Some(0), pcm.len(), 0x1000, 0, 200, 140, false);
+//! let mut acc_l = [0i16; 16];
+//! let mut acc_r = [0i16; 16];
+//! let mut dma_l = [0i8; 16];
+//! let mut dma_r = [0i8; 16];
+//!
+//! AccuracySynth::mix_kceh_voice(KcehMixMode::StereoLinear, pcm, &mut voice, &mut acc_l, &mut acc_r);
+//! AccuracySynth::clamp_kceh_stereo_to_dma8(&mut acc_l, &mut acc_r, &mut dma_l, &mut dma_r);
+//! assert!(dma_l.iter().any(|&s| s != 0));
+//! ```
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(unsafe_code)]

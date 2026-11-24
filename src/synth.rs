@@ -44,7 +44,7 @@ fn kcej_v2_lut_fast(sample: i8, vol: u8) -> i16 {
 }
 
 /// Bit-exact software emulation of all 6 Konami KCE ARM7TDMI mixer revisions.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct AccuracySynth;
 
 impl AccuracySynth {
@@ -188,8 +188,8 @@ impl AccuracySynth {
                     offset += run;
                     if cur >= end {
                         if let Some(ls) = loop_start {
-                            cur = ls + (cur - end);
-                            end = ls + loop_len;
+                            cur = ls.saturating_add(cur - end);
+                            end = ls.saturating_add(loop_len);
                             if cur >= end {
                                 cur = ls;
                             }
@@ -234,8 +234,8 @@ impl AccuracySynth {
                     frac &= 0x0FFF;
                     if cur >= end {
                         if let Some(ls) = loop_start {
-                            cur = ls + (cur - end);
-                            end = ls + loop_len;
+                            cur = ls.saturating_add(cur - end);
+                            end = ls.saturating_add(loop_len);
                             if cur >= end {
                                 cur = ls;
                             }
@@ -451,8 +451,8 @@ impl AccuracySynth {
                     offset += run;
                     if cur >= end {
                         if let Some(ls) = loop_start {
-                            cur = ls + (cur - end);
-                            end = ls + loop_len;
+                            cur = ls.saturating_add(cur - end);
+                            end = ls.saturating_add(loop_len);
                             if cur >= end {
                                 cur = ls;
                             }
@@ -494,8 +494,8 @@ impl AccuracySynth {
                     frac &= 0x0FFF;
                     if cur >= end {
                         if let Some(ls) = loop_start {
-                            cur = ls + (cur - end);
-                            end = ls + loop_len;
+                            cur = ls.saturating_add(cur - end);
+                            end = ls.saturating_add(loop_len);
                             if cur >= end {
                                 cur = ls;
                             }
@@ -738,7 +738,7 @@ impl AccuracySynth {
                     if rem <= 0 {
                         if let Some(ls) = loop_start {
                             pos = ls;
-                            rem = (sample_len.saturating_sub(ls)) as i32;
+                            rem = sample_len.saturating_sub(ls).min(i32::MAX as usize) as i32;
                         } else {
                             voice.active = false;
                             break;
@@ -753,11 +753,11 @@ impl AccuracySynth {
                 out[out_idx] = out[out_idx].wrapping_add(s);
                 out[out_idx + 1] = out[out_idx + 1].wrapping_add(s);
                 out_idx += 2;
-                rem -= 1;
+                rem = rem.saturating_sub(1);
                 if rem <= 0 {
                     if let Some(ls) = loop_start {
                         pos = ls;
-                        rem = (sample_len.saturating_sub(ls)) as i32;
+                        rem = sample_len.saturating_sub(ls).min(i32::MAX as usize) as i32;
                     } else {
                         voice.active = false;
                         break;
@@ -808,7 +808,7 @@ impl AccuracySynth {
                     if rem <= 0 {
                         if let Some(ls) = loop_start {
                             pos = ls;
-                            rem = (sample_len.saturating_sub(ls)) as i32;
+                            rem = sample_len.saturating_sub(ls).min(i32::MAX as usize) as i32;
                             if pos >= pcm_len {
                                 voice.active = false;
                                 break;
@@ -833,12 +833,12 @@ impl AccuracySynth {
                 let adv = frac >> 12;
                 if adv != 0 {
                     frac &= 0x0FFF;
-                    rem -= adv as i32;
+                    rem = rem.saturating_sub(adv as i32);
                     if rem > 0 {
                         pos += adv as usize;
                     } else if let Some(ls) = loop_start {
                         pos = ls;
-                        rem = (sample_len.saturating_sub(ls)) as i32;
+                        rem = sample_len.saturating_sub(ls).min(i32::MAX as usize) as i32;
                     } else {
                         voice.active = false;
                         break;
@@ -949,7 +949,7 @@ impl AccuracySynth {
                     if rem <= 0 {
                         if let Some(ls) = loop_start {
                             pos = ls;
-                            rem = (sample_len.saturating_sub(ls)) as i32;
+                            rem = sample_len.saturating_sub(ls).min(i32::MAX as usize) as i32;
                             if pos >= pcm_len {
                                 voice.active = false;
                                 break;
@@ -975,12 +975,12 @@ impl AccuracySynth {
                 let adv = frac >> 12;
                 if adv != 0 {
                     frac &= 0x0FFF;
-                    rem -= adv as i32;
+                    rem = rem.saturating_sub(adv as i32);
                     if rem > 0 {
                         pos += adv as usize;
                     } else if let Some(ls) = loop_start {
                         pos = ls;
-                        rem = (sample_len.saturating_sub(ls)) as i32;
+                        rem = sample_len.saturating_sub(ls).min(i32::MAX as usize) as i32;
                     } else {
                         voice.active = false;
                         break;
@@ -1048,7 +1048,7 @@ impl AccuracySynth {
                 let adv = frac >> 12;
                 if adv != 0 {
                     frac &= 0x0FFF;
-                    rem -= adv as i32;
+                    rem = rem.saturating_sub(adv as i32);
                     if rem > 0 {
                         if pos < adv as usize {
                             voice.active = false;
@@ -1240,7 +1240,7 @@ fn sin_f64(x: f64) -> f64 {
 
 /// High-fidelity 48,000 Hz `f32` software synthesizer with band-limited windowed-sinc
 /// (Lanczos-3) interpolation and true equal-power stereo panning.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct StudioSynth {
     /// Output sample rate in Hz (default [`Self::SAMPLE_RATE`] = `48_000`).
     pub sample_rate: u32,
@@ -1292,6 +1292,8 @@ impl StudioSynth {
             || !freq_hz.is_finite()
             || freq_hz <= 0.0
             || !pos_f64.is_finite()
+            || !volume.is_finite()
+            || !pan.is_finite()
         {
             return;
         }
@@ -1343,7 +1345,7 @@ impl StudioSynth {
                 if pcm_len >= 6 && base >= 2 && base <= safe_max_base && step < (1u64 << 31) as f64
                 {
                     let safe_limit = (safe_max_base as f64) + 0.999_999;
-                    let max_interior = (((safe_limit - ph) / step) as usize) + 1;
+                    let max_interior = (((safe_limit - ph) / step) as usize).saturating_add(1);
                     let run = max_interior.min(frames - idx);
                     if run >= 4 {
                         const Q32_SCALE: f64 = 4_294_967_296.0;
@@ -1423,7 +1425,7 @@ impl StudioSynth {
         }
 
         // General fallback for custom `sinc_lobes != 3`
-        let a = self.sinc_lobes.max(1) as isize;
+        let a = self.sinc_lobes.clamp(1, 64) as isize;
         let a_f64 = a as f64;
         let mut ph = *pos_f64;
 
@@ -1520,5 +1522,24 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn test_malformed_inputs_do_not_panic_or_poison() {
+        let pcm = [0u8, 32, 64, 96, 127, 96, 64, 32];
+        let view = KonamiSampleView::from_pcm_bytes(0, 13_379, 60, None, &pcm);
+        let synth = StudioSynth::new(48_000);
+        let mut l = [0.0f32; 8];
+        let mut r = [0.0f32; 8];
+        let mut pos = 2.0;
+        synth.render_voice_f32(&view, &mut pos, 12_000.0, f32::NAN, 0.0, &mut l, &mut r);
+        synth.render_voice_f32(&view, &mut pos, 12_000.0, 1.0, f32::NAN, &mut l, &mut r);
+        synth.render_voice_f32(&view, &mut pos, 1e-300, 1.0, 0.0, &mut l, &mut r);
+        assert!(l.iter().all(|x| x.is_finite()));
+        assert!(r.iter().all(|x| x.is_finite()));
+
+        let mut voice = KcejVoice::new(0, i32::MIN, 0x1000, 0, 15, 15, None, pcm.len(), false);
+        let mut out = [0i8; 8];
+        AccuracySynth::mix_kcej_v1_mono8(&pcm, &mut voice, &mut out);
     }
 }

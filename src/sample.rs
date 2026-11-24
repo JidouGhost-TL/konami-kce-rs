@@ -20,7 +20,7 @@ pub const KCEJ_SAMPLE_HEADER_SIZE: usize = 12;
 pub const GBA_ROM_BUS_BASE: u32 = 0x0800_0000;
 
 /// Parsed 32-byte KCEH / Cross-Studio relocatable soundbank container header.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct KcehBankHeader {
     /// Offset to instrument table (always `0x0000_0020`).
     pub inst_table_off: u32,
@@ -79,7 +79,7 @@ impl KcehBankHeader {
 }
 
 /// Parsed 16-byte KCEH inline sample header.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct KcehSampleHeader {
     /// Sample payload length in bytes (signed 8-bit PCM).
     pub sample_len: u32,
@@ -144,7 +144,7 @@ impl KcehSampleHeader {
 }
 
 /// Parsed 12-byte KCEJ inline sample header.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct KcejSampleHeader {
     /// Q4.12 fixed-point playback step (`4096 = 1.0x` driver mix rate; e.g. `0x0800 = 0.5x`).
     pub pitch_base: u32,
@@ -206,7 +206,7 @@ impl KcejSampleHeader {
 /// Zero-allocation borrowed view of a Konami KCE (KCEH or KCEJ) signed 8-bit PCM sample.
 ///
 /// Both KCEH and KCEJ store raw signed 8-bit PCM (`i8`, two's complement, `0` = silence).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct KonamiSampleView<'a> {
     /// Sample index within its bank or pointer table.
     pub id: u32,
@@ -311,7 +311,7 @@ impl<'a> KonamiSampleView<'a> {
 
 /// Owned Konami KCE sample (available with `alloc` or `std`).
 #[cfg(feature = "alloc")]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct KonamiSample {
     /// Sample index within its bank or pointer table.
     pub id: u32,
