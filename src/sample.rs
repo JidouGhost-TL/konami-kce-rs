@@ -313,10 +313,15 @@ impl<'a> KonamiSampleView<'a> {
 #[cfg(feature = "alloc")]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KonamiSample {
+    /// Sample index within its bank or pointer table.
     pub id: u32,
+    /// Native sample rate in Hz.
     pub sample_rate_hz: u32,
+    /// MIDI root note (`0..=127`, `60` = Middle C).
     pub root_note: u8,
+    /// Loop start offset in bytes (`None` for one-shot).
     pub loop_start: Option<u32>,
+    /// Owned raw signed 8-bit PCM bytes (reinterpreted as `i8` during synthesis).
     pub pcm_bytes: Vec<u8>,
 }
 

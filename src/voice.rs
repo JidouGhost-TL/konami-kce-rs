@@ -2,7 +2,7 @@
 //! and Konami KCEJ sound drivers.
 
 /// KCEH / Cross-Studio ARM mixer kernel selection (4 hardware routines).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub enum KcehMixMode {
     /// Stereo 12-bit linear interpolation (`0x08043C08` in *Frogger's Adventures 2*).
     #[default]
@@ -27,17 +27,27 @@ pub enum KcehMixMode {
 /// - `+0x18`: `vol_l` (`0..=255`; non-zero values add `+1` in hardware)
 /// - `+0x19`: `vol_r` (`0..=255`; non-zero values add `+1` in hardware)
 /// - `+0x1A`: `phase_invert` (when `true`, negates right volume for surround/QSound effect)
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct KcehVoice {
+    /// Current sample index into the PCM buffer.
     pub cur: usize,
+    /// Exclusive forward end index, or reverse stop bound (`< cur`).
     pub end: usize,
+    /// Loop start index (`None` for one-shot playback).
     pub loop_start: Option<usize>,
+    /// Loop length in samples.
     pub loop_len: usize,
+    /// Q4.12 fixed-point phase increment (`0x1000 = 1.0x`).
     pub step: u16,
+    /// 12-bit fractional phase accumulator (`0..=0x0FFF`).
     pub frac: u16,
+    /// Left channel volume (`0..=255`; non-zero values add `+1` in hardware).
     pub vol_l: u8,
+    /// Right channel volume (`0..=255`; non-zero values add `+1` in hardware).
     pub vol_r: u8,
+    /// When `true`, negates the right-channel volume for surround/QSound phase inversion.
     pub phase_invert: bool,
+    /// Whether this voice is currently active.
     pub active: bool,
 }
 
@@ -111,17 +121,27 @@ impl KcehVoice {
 /// - `+0x0E`: `flags` (bit 7 = looped, bit 1 = reverse)
 /// - `+0x10`: `vol_r` (Right channel volume; for v1 mono, used as mono `vol`)
 /// - `+0x11`: `vol_l` (Left channel volume)
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct KcejVoice {
+    /// Current sample index into the PCM buffer.
     pub pos: usize,
+    /// Remaining sample count before loop wrap or voice stop.
     pub rem: i32,
+    /// Q4.12 fixed-point phase increment (`0x1000 = 1.0x`).
     pub step: u16,
+    /// 12-bit fractional phase accumulator (`0..=0x0FFF`).
     pub frac: u16,
+    /// Left channel volume.
     pub vol_l: u8,
+    /// Right channel volume (also used as mono volume in KCEJ v1).
     pub vol_r: u8,
+    /// Loop start index (`None` for one-shot playback).
     pub loop_start: Option<usize>,
+    /// Total sample length in bytes.
     pub sample_len: usize,
+    /// Whether this voice plays in reverse.
     pub reverse: bool,
+    /// Whether this voice is currently active.
     pub active: bool,
 }
 
