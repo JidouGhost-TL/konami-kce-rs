@@ -1,0 +1,215 @@
+{
+  "description": "Clean-room headless libmgba.so.0.10 ARM7TDMI golden vectors for all 6 Konami KCE engine revisions",
+  "total_vectors": 16,
+  "total_bytes": 1920,
+  "vectors": {
+    "kceh_mono_linear_fwd.bin": {
+      "bytes": 128,
+      "first8": [
+        41,
+        202,
+        213,
+        224,
+        249,
+        3,
+        2,
+        13
+      ]
+    },
+    "kceh_mono_nearest_fwd.bin": {
+      "bytes": 128,
+      "first8": [
+        61,
+        203,
+        213,
+        223,
+        232,
+        232,
+        13,
+        252
+      ]
+    },
+    "kceh_stereo_4voice_clamped.bin": {
+      "bytes": 256,
+      "first8": [
+        127,
+        174,
+        18,
+        254,
+        128,
+        127,
+        141,
+        190
+      ]
+    },
+    "kceh_stereo_linear_fwd.bin": {
+      "bytes": 256,
+      "first8": [
+        65,
+        188,
+        204,
+        220,
+        15,
+        252,
+        12,
+        28
+      ]
+    },
+    "kceh_stereo_linear_loop_inv.bin": {
+      "bytes": 256,
+      "first8": [
+        35,
+        160,
+        182,
+        43,
+        226,
+        248,
+        248,
+        35
+      ]
+    },
+    "kceh_stereo_linear_rev.bin": {
+      "bytes": 256,
+      "first8": [
+        213,
+        57,
+        44,
+        31,
+        18,
+        8,
+        6,
+        240
+      ]
+    },
+    "kceh_stereo_nearest_fwd.bin": {
+      "bytes": 256,
+      "first8": [
+        121,
+        154,
+        173,
+        211,
+        26,
+        249,
+        31,
+        50
+      ]
+    },
+    "kcej_v1_2voice_wrap.bin": {
+      "bytes": 64,
+      "first8": [
+        64,
+        134,
+        190,
+        246,
+        119,
+        227,
+        231,
+        31
+      ]
+    },
+    "kcej_v1_fast_0800.bin": {
+      "bytes": 64,
+      "first8": [
+        121,
+        121,
+        154,
+        154,
+        173,
+        173,
+        192,
+        192
+      ]
+    },
+    "kcej_v1_resampled.bin": {
+      "bytes": 64,
+      "first8": [
+        90,
+        179,
+        193,
+        208,
+        222,
+        250,
+        9,
+        23
+      ]
+    },
+    "kcej_v2_stereo_lut_fwd.bin": {
+      "bytes": 32,
+      "first8": [
+        89,
+        181,
+        195,
+        209,
+        223,
+        19,
+        9,
+        23
+      ]
+    },
+    "kcej_v2_stereo_lut_rev.bin": {
+      "bytes": 32,
+      "first8": [
+        167,
+        167,
+        76,
+        57,
+        38,
+        19,
+        0,
+        0
+      ]
+    },
+    "kcej_v3_asr4_bias_center.bin": {
+      "bytes": 32,
+      "first8": [
+        90,
+        180,
+        194,
+        194,
+        209,
+        223,
+        19,
+        251
+      ]
+    },
+    "kcej_v3_asr4_bias_stereo.bin": {
+      "bytes": 32,
+      "first8": [
+        98,
+        174,
+        189,
+        205,
+        21,
+        251,
+        9,
+        25
+      ]
+    },
+    "kcej_v4_asr7_stereo.bin": {
+      "bytes": 32,
+      "first8": [
+        103,
+        168,
+        184,
+        217,
+        22,
+        249,
+        26,
+        42
+      ]
+    },
+    "kcej_v5_asr7_bias_stereo.bin": {
+      "bytes": 32,
+      "first8": [
+        108,
+        165,
+        199,
+        216,
+        23,
+        10,
+        27,
+        195
+      ]
+    }
+  }
+}
